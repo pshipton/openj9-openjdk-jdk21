@@ -27,8 +27,28 @@
 #include "jni_util.h"
 #include "jvm.h"
 
+/* These definitions required by j9.h are in the OpenJ9 jni.h, but OpenJDK jni.h is used here. */
+struct GCStatus;
+typedef struct GCStatus GCStatus;
+struct JavaVMQuery;
+typedef struct JavaVMQuery JavaVMQuery;
+struct JVMExtensionInterface_;
+typedef const struct JVMExtensionInterface_ *JVMExt;
+
+#define COPY_PROGRESS_INFO_MASK 0
+#ifdef WIN32
+#define OMR_OS_WINDOWS
+#endif
+
+#include "j9.h"
+#include "ut_jcl_io.h"
+#include "tracehelp.c"
+#include "ut_jcl_io.c"
+
 JNIEXPORT jint JNICALL
 DEF_JNI_OnLoad(JavaVM *vm, void *reserved)
 {
+    UT_JCL_IO_MODULE_LOADED(J9_UTINTERFACE_FROM_VM((J9JavaVM *)vm));
+
     return JNI_VERSION_1_2;
 }

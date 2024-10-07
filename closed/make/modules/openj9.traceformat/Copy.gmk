@@ -20,7 +20,7 @@
 
 include $(TOPDIR)/closed/CopySupport.gmk
 
-$(foreach file, J9TraceFormat.dat OMRTraceFormat.dat, \
+$(foreach file, J9TraceFormat.dat OMRTraceFormat.dat JCLTraceFormat.dat, \
 	$(call openj9_copy_files,, \
 		$(addsuffix /$(file), \
 			$(OPENJ9_VM_BUILD_DIR) \

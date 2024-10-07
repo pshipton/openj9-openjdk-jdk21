@@ -28,6 +28,8 @@
 
 #include "sun_nio_ch_UnixDispatcher.h"
 
+#include "ut_jcl_nio.h"
+
 static int preCloseFD = -1;     /* File descriptor to which we dup other fd's
                                    before closing them for real */
 
@@ -55,6 +57,7 @@ JNIEXPORT void JNICALL
 Java_sun_nio_ch_UnixDispatcher_close0(JNIEnv *env, jclass clazz, jobject fdo)
 {
     jint fd = fdval(env, fdo);
+    Trc_nio_ch_UnixDispatcher_close(fd);
     closeFileDescriptor(env, fd);
 }
 

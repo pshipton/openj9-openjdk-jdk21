@@ -22,6 +22,13 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
+/*
+ * ===========================================================================
+ * (c) Copyright IBM Corp. 2025, 2025 All Rights Reserved
+ * ===========================================================================
+ */
+
 #include "jni.h"
 #include "jni_util.h"
 #include "jvm.h"
@@ -38,6 +45,8 @@
 #include <linux/fs.h>
 #include <sys/stat.h>
 #endif
+
+#include "ut_jcl_io.h"
 
 #ifdef MACOSX
 
@@ -74,6 +83,7 @@ jstring newStringPlatform(JNIEnv *env, const char* str)
 FD
 handleOpen(const char *path, int oflag, int mode) {
     FD fd;
+    Trc_io_handleOpen_Entry(path, oflag, mode, 0, 0);
     RESTARTABLE(open64(path, oflag, mode), fd);
     if (fd != -1) {
         struct stat64 buf64;
@@ -89,6 +99,11 @@ handleOpen(const char *path, int oflag, int mode) {
             close(fd);
             fd = -1;
         }
+    }
+    if (-1 == fd) {
+        Trc_io_handleOpen_Exit1(errno);
+    } else {
+        Trc_io_handleOpen_Exit2((jlong)fd);
     }
     return fd;
 }
@@ -143,6 +158,8 @@ fileDescriptorClose(JNIEnv *env, jobject this)
         return;     // already closed and set to -1
     }
 
+    Trc_io_fileDescriptorClose_Entry((jlong)fd);
+
     /* Set the fd to -1 before closing it so that the timing window
      * of other threads using the wrong fd (closed but recycled fd,
      * that gets re-opened with some other filename) is reduced.
@@ -151,6 +168,7 @@ fileDescriptorClose(JNIEnv *env, jobject this)
      */
     (*env)->SetIntField(env, this, IO_fd_fdID, -1);
     if ((*env)->ExceptionOccurred(env)) {
+        Trc_io_fileDescriptorClose_Exit1(-1);
         return;
     }
     /*
@@ -167,6 +185,7 @@ fileDescriptorClose(JNIEnv *env, jobject this)
             dup2(devnull, fd);
             close(devnull);
         }
+        Trc_io_fileDescriptorClose_Exit2();
     } else {
         int result;
 #if defined(_AIX)
@@ -176,7 +195,10 @@ fileDescriptorClose(JNIEnv *env, jobject this)
         result = close(fd);
 #endif
         if (result == -1 && errno != EINTR) {
+            Trc_io_fileDescriptorClose_Exit1(errno);
             JNU_ThrowIOExceptionWithLastError(env, "close failed");
+        } else {
+            Trc_io_fileDescriptorClose_Exit2();
         }
     }
 }

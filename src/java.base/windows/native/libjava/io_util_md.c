@@ -23,6 +23,12 @@
  * questions.
  */
 
+/*
+ * ===========================================================================
+ * (c) Copyright IBM Corp. 2025, 2025 All Rights Reserved
+ * ===========================================================================
+ */
+
 #include "jni.h"
 #include "jni_util.h"
 #include "jvm.h"
@@ -41,6 +47,7 @@
 #include <limits.h>
 #include <wincon.h>
 
+#include "ut_jcl_io.h"
 
 static DWORD MAX_INPUT_EVENTS = 2000;
 
@@ -240,6 +247,17 @@ FD winFileHandleOpen(JNIEnv *env, jstring path, int flags)
         /* Exception already pending */
         return -1;
     }
+    
+    if (TrcEnabled_Trc_io_handleOpen_Entry) {
+	    int length = WideCharToMultiByte(CP_UTF8, 0, pathbuf, -1, NULL, 0, NULL, NULL);
+	    char *pathStr = malloc(length);
+	    if (NULL != pathStr) {
+	        WideCharToMultiByte(CP_UTF8, 0, pathbuf, -1, pathStr, length, NULL, NULL);
+	    }
+	    Trc_io_CreateFileW_Entry(pathStr, access, sharing, disposition, flagsAndAttributes);
+	    free(pathStr);
+	}
+
     h = CreateFileW(
         pathbuf,            /* Wide char path name */
         access,             /* Read and/or write permission */
@@ -251,9 +269,11 @@ FD winFileHandleOpen(JNIEnv *env, jstring path, int flags)
     free(pathbuf);
 
     if (h == INVALID_HANDLE_VALUE) {
+        Trc_io_handleOpen_Exit1(GetLastError());
         throwFileNotFoundException(env, path);
         return -1;
     }
+    Trc_io_handleOpen_Exit2((jlong)h);
     return (jlong) h;
 }
 
@@ -545,6 +565,8 @@ fileDescriptorClose(JNIEnv *env, jobject this)
         return;
     }
 
+    Trc_io_fileDescriptorClose_Entry((jlong)fd);
+
     /* Set the fd to -1 before closing it so that the timing window
      * of other threads using the wrong fd (closed but recycled fd,
      * that gets re-opened with some other filename) is reduced.
@@ -553,11 +575,15 @@ fileDescriptorClose(JNIEnv *env, jobject this)
      */
     (*env)->SetLongField(env, this, IO_handle_fdID, -1);
     if ((*env)->ExceptionOccurred(env)) {
+        Trc_io_fileDescriptorClose_Exit1(-1);
         return;
     }
 
     if (CloseHandle(h) == 0) { /* Returns zero on failure */
+        Trc_io_fileDescriptorClose_Exit1(GetLastError());
         JNU_ThrowIOExceptionWithLastError(env, "close failed");
+    } else {
+        Trc_io_fileDescriptorClose_Exit2();
     }
 }
 

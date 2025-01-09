@@ -158,7 +158,7 @@ fileDescriptorClose(JNIEnv *env, jobject this)
         return;     // already closed and set to -1
     }
 
-    Trc_io_fileDescriptorClose_Entry((jlong)fd);
+    Trc_io_fileDescriptorClose((jlong)fd);
 
     /* Set the fd to -1 before closing it so that the timing window
      * of other threads using the wrong fd (closed but recycled fd,

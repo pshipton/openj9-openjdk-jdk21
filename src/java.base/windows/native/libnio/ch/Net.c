@@ -252,7 +252,7 @@ Java_sun_nio_ch_Net_connect0(JNIEnv *env, jclass clazz, jboolean preferIPv6, job
         Trc_nio_ch_Net_connect4((jlong)s, inet_ntop(AF_INET, &sa.sa4.sin_addr, buf, sizeof(buf)), port, sa_len);
     } else if (AF_INET6 == sa.sa6.sin6_family) {
         char buf[INET6_ADDRSTRLEN];
-        Trc_nio_ch_Net_connect6((jlong)s, inet_ntop(AF_INET6, &sa.sa6.sin6_addr, buf, sizeof(buf)), port, ntohs(sa.sa6.sin6_scope_id), sa_len);
+        Trc_nio_ch_Net_connect6((jlong)s, inet_ntop(AF_INET6, &sa.sa6.sin6_addr, buf, sizeof(buf)), port, ntohl(sa.sa6.sin6_scope_id), sa_len);
     }
 
     rv = connect(s, &sa.sa, sa_len);

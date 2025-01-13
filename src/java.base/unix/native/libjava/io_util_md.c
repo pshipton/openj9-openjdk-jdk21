@@ -83,7 +83,6 @@ jstring newStringPlatform(JNIEnv *env, const char* str)
 FD
 handleOpen(const char *path, int oflag, int mode) {
     FD fd;
-    Trc_io_handleOpen(path, oflag, mode, 0, 0);
     RESTARTABLE(open64(path, oflag, mode), fd);
     if (fd != -1) {
         struct stat64 buf64;
@@ -101,9 +100,9 @@ handleOpen(const char *path, int oflag, int mode) {
         }
     }
     if (-1 == fd) {
-        Trc_io_handleOpen_Exit1(errno);
+        Trc_io_handleOpen_err(path, oflag, mode, 0, 0, errno);
     } else {
-        Trc_io_handleOpen_Exit2((jlong)fd);
+        Trc_io_handleOpen(path, oflag, mode, 0, 0, (jlong)fd);
     }
     return fd;
 }
@@ -158,8 +157,6 @@ fileDescriptorClose(JNIEnv *env, jobject this)
         return;     // already closed and set to -1
     }
 
-    Trc_io_fileDescriptorClose((jlong)fd);
-
     /* Set the fd to -1 before closing it so that the timing window
      * of other threads using the wrong fd (closed but recycled fd,
      * that gets re-opened with some other filename) is reduced.
@@ -168,7 +165,6 @@ fileDescriptorClose(JNIEnv *env, jobject this)
      */
     (*env)->SetIntField(env, this, IO_fd_fdID, -1);
     if ((*env)->ExceptionOccurred(env)) {
-        Trc_io_fileDescriptorClose_Exit1(-1);
         return;
     }
     /*
@@ -185,7 +181,7 @@ fileDescriptorClose(JNIEnv *env, jobject this)
             dup2(devnull, fd);
             close(devnull);
         }
-        Trc_io_fileDescriptorClose_Exit2();
+        Trc_io_fileDescriptorClose((jlong)fd);
     } else {
         int result;
 #if defined(_AIX)
@@ -195,10 +191,10 @@ fileDescriptorClose(JNIEnv *env, jobject this)
         result = close(fd);
 #endif
         if (result == -1 && errno != EINTR) {
-            Trc_io_fileDescriptorClose_Exit1(errno);
+            Trc_io_fileDescriptorClose_err((jlong)fd, errno);
             JNU_ThrowIOExceptionWithLastError(env, "close failed");
         } else {
-            Trc_io_fileDescriptorClose_Exit2();
+            Trc_io_fileDescriptorClose((jlong)fd);
         }
     }
 }

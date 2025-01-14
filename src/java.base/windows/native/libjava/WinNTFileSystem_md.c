@@ -83,7 +83,7 @@ Java_java_io_WinNTFileSystem_initIDs(JNIEnv *env, jclass cls)
     HMODULE handle;
     jclass fileClass;
 
-    UT_JCL_JAVA_MODULE_LOADED(J9_UTINTERFACE_FROM_VM((J9JavaVM *)vm));
+    UT_JCL_JAVA_MODULE_LOADED(J9_UTINTERFACE_FROM_VM(((J9VMThread *) env)->javaVM));
 
     fileClass = (*env)->FindClass(env, "java/io/File");
     CHECK_NULL(fileClass);

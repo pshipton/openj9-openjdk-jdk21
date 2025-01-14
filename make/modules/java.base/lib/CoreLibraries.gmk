@@ -74,6 +74,8 @@ $(eval $(call SetupJdkLibrary, BUILD_LIBJAVA, \
         -I$(OUTPUTDIR)/vm/runtime/jcl, \
     jdk_util.c_CFLAGS := $(VERSION_CFLAGS), \
     ProcessImpl_md.c_CFLAGS := $(VERSION_CFLAGS), \
+    UnixFileSystem_md.c_CFLAGS := -I$(OPENJ9OMR_TOPDIR)/include_core \
+        -I$(OUTPUTDIR)/vm/runtime/jcl, \
     WARNINGS_AS_ERRORS_xlc := false, \
     DISABLED_WARNINGS_gcc_ProcessImpl_md.c := unused-result, \
     LDFLAGS := $(LDFLAGS_JDKLIB) \

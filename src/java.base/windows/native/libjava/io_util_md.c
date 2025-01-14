@@ -250,11 +250,11 @@ FD winFileHandleOpen(JNIEnv *env, jstring path, int flags)
     }
     
     if (TrcEnabled_Trc_io_handleOpen) {
-	    int length = WideCharToMultiByte(CP_UTF8, 0, pathbuf, -1, NULL, 0, NULL, NULL);
-	    pathStr = malloc(length);
-	    if (NULL != pathStr) {
-	        WideCharToMultiByte(CP_UTF8, 0, pathbuf, -1, pathStr, length, NULL, NULL);
-	    }
+        int length = WideCharToMultiByte(CP_UTF8, 0, pathbuf, -1, NULL, 0, NULL, NULL);
+        pathStr = malloc(length);
+        if (NULL != pathStr) {
+            WideCharToMultiByte(CP_UTF8, 0, pathbuf, -1, pathStr, length, NULL, NULL);
+        }
 	}
 
     h = CreateFileW(

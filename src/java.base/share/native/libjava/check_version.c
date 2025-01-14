@@ -33,6 +33,7 @@
 #include "jni_util.h"
 #include "jvm.h"
 
+#if !defined(WIN32)
 /* These definitions required by j9.h are in the OpenJ9 jni.h, but OpenJDK jni.h is used here. */
 struct GCStatus;
 typedef struct GCStatus GCStatus;
@@ -42,19 +43,19 @@ struct JVMExtensionInterface_;
 typedef const struct JVMExtensionInterface_ *JVMExt;
 
 #define COPY_PROGRESS_INFO_MASK 0
-#ifdef WIN32
-#define OMR_OS_WINDOWS
-#endif
 
 #include "j9.h"
 #include "ut_jcl_java.h"
 #include "tracehelp.c"
 #include "ut_jcl_java.c"
+#endif /* !defined(WIN32) */
 
 JNIEXPORT jint JNICALL
 DEF_JNI_OnLoad(JavaVM *vm, void *reserved)
 {
+#if !defined(WIN32)
     UT_JCL_JAVA_MODULE_LOADED(J9_UTINTERFACE_FROM_VM((J9JavaVM *)vm));
+#endif /* !defined(WIN32) */
 
     return JNI_VERSION_1_2;
 }

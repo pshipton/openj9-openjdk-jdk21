@@ -23,12 +23,36 @@
  * questions.
  */
 
+/*
+ * ===========================================================================
+ * (c) Copyright IBM Corp. 2025, 2025 All Rights Reserved
+ * ===========================================================================
+ */
+
 #include "jni.h"
 #include "jni_util.h"
 #include "jvm.h"
 #include "jdk_util.h"
 
 #include "jdk_internal_misc_VM.h"
+
+#if defined(WIN32)
+/* These definitions required by j9.h are in the OpenJ9 jni.h, but OpenJDK jni.h is used here. */
+struct GCStatus;
+typedef struct GCStatus GCStatus;
+struct JavaVMQuery;
+typedef struct JavaVMQuery JavaVMQuery;
+struct JVMExtensionInterface_;
+typedef const struct JVMExtensionInterface_ *JVMExt;
+
+#define COPY_PROGRESS_INFO_MASK 0
+#define OMR_OS_WINDOWS
+
+#include "j9.h"
+#include "ut_jcl_java.h"
+#include "tracehelp.c"
+#include "ut_jcl_java.c"
+#endif /* defined(WIN32) */
 
 /* Only register the performance-critical methods */
 static JNINativeMethod methods[] = {
@@ -42,6 +66,11 @@ Java_jdk_internal_misc_VM_latestUserDefinedLoader0(JNIEnv *env, jclass cls) {
 
 JNIEXPORT void JNICALL
 Java_jdk_internal_misc_VM_initialize(JNIEnv *env, jclass cls) {
+#if defined(WIN32)
+    /* Other platforms do this in check_version.c JNI_OnLoad. */
+    UT_JCL_JAVA_MODULE_LOADED(J9_UTINTERFACE_FROM_VM(((J9VMThread *) env)->javaVM));
+#endif /* defined(WIN32) */
+
     // Registers implementations of native methods described in methods[]
     // above.
     // In particular, registers JVM_GetNanoTimeAdjustment as the implementation

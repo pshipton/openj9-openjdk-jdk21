@@ -76,7 +76,7 @@ $(eval $(call SetupJdkLibrary, BUILD_LIBJAVA, \
     ProcessImpl_md.c_CFLAGS := $(VERSION_CFLAGS), \
     UnixFileSystem_md.c_CFLAGS := -I$(OPENJ9OMR_TOPDIR)/include_core \
         -I$(OUTPUTDIR)/vm/runtime/jcl, \
-    WinNTFileSystem_md.c_CFLAGS := \
+    VM.c_CFLAGS := \
          -I$(OPENJ9_TOPDIR)/runtime/include \
         -I$(OPENJ9_TOPDIR)/runtime/oti \
         -I$(OPENJ9OMR_TOPDIR)/include_core \

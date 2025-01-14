@@ -23,12 +23,6 @@
  * questions.
  */
 
-/*
- * ===========================================================================
- * (c) Copyright IBM Corp. 2025, 2025 All Rights Reserved
- * ===========================================================================
- */
-
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,24 +41,6 @@
 #include "dirent_md.h"
 #include "java_io_FileSystem.h"
 
-/* These definitions required by j9.h are in the OpenJ9 jni.h, but OpenJDK jni.h is used here. */
-struct GCStatus;
-typedef struct GCStatus GCStatus;
-struct JavaVMQuery;
-typedef struct JavaVMQuery JavaVMQuery;
-struct JVMExtensionInterface_;
-typedef const struct JVMExtensionInterface_ *JVMExt;
-
-#define COPY_PROGRESS_INFO_MASK 0
-#ifdef WIN32
-#define OMR_OS_WINDOWS
-#endif
-
-#include "j9.h"
-#include "ut_jcl_java.h"
-#include "tracehelp.c"
-#include "ut_jcl_java.c"
-
 #define MAX_PATH_LENGTH 1024
 
 static struct {
@@ -82,8 +58,6 @@ Java_java_io_WinNTFileSystem_initIDs(JNIEnv *env, jclass cls)
 {
     HMODULE handle;
     jclass fileClass;
-
-    UT_JCL_JAVA_MODULE_LOADED(J9_UTINTERFACE_FROM_VM(((J9VMThread *) env)->javaVM));
 
     fileClass = (*env)->FindClass(env, "java/io/File");
     CHECK_NULL(fileClass);

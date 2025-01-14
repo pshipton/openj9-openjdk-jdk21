@@ -47,14 +47,14 @@ typedef const struct JVMExtensionInterface_ *JVMExt;
 #endif
 
 #include "j9.h"
-#include "ut_jcl_io.h"
+#include "ut_jcl_java.h"
 #include "tracehelp.c"
-#include "ut_jcl_io.c"
+#include "ut_jcl_java.c"
 
 JNIEXPORT jint JNICALL
 DEF_JNI_OnLoad(JavaVM *vm, void *reserved)
 {
-    UT_JCL_IO_MODULE_LOADED(J9_UTINTERFACE_FROM_VM((J9JavaVM *)vm));
+    UT_JCL_JAVA_MODULE_LOADED(J9_UTINTERFACE_FROM_VM((J9JavaVM *)vm));
 
     return JNI_VERSION_1_2;
 }

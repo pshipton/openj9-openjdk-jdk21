@@ -46,7 +46,7 @@
 #include <sys/stat.h>
 #endif
 
-#include "ut_jcl_io.h"
+#include "ut_jcl_java.h"
 
 #ifdef MACOSX
 

@@ -57,7 +57,7 @@
 #include "java_io_FileSystem.h"
 #include "java_io_UnixFileSystem.h"
 
-#include "ut_jcl_io.h"
+#include "ut_jcl_java.h"
 
 #if defined(_AIX)
   #if !defined(NAME_MAX)

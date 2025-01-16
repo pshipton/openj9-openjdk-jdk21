@@ -43,6 +43,9 @@ struct JVMExtensionInterface_;
 typedef const struct JVMExtensionInterface_ *JVMExt;
 
 #define COPY_PROGRESS_INFO_MASK 0
+#if defined(MACOSX)
+#define OSX
+#endif /* defined(MACOSX) */
 
 #include "j9.h"
 #include "ut_jcl_java.h"

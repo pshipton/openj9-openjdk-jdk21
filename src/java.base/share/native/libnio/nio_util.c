@@ -48,6 +48,9 @@ typedef const struct JVMExtensionInterface_ *JVMExt;
 #if defined(MACOSX)
 #define OSX
 #endif /* defined(MACOSX) */
+#if defined(AIX)
+#define AIXPPC
+#endif /* defined(AIX) */
 
 #include "j9.h"
 #include "tracehelp.c"

@@ -255,7 +255,7 @@ FD winFileHandleOpen(JNIEnv *env, jstring path, int flags)
         if (NULL != pathStr) {
             WideCharToMultiByte(CP_UTF8, 0, pathbuf, -1, pathStr, length, NULL, NULL);
         }
-	}
+    }
 
     h = CreateFileW(
         pathbuf,            /* Wide char path name */

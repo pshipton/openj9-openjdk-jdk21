@@ -44,7 +44,7 @@ JNIEXPORT jint JNICALL
 DEF_JNI_OnLoad(JavaVM *vm, void *reserved)
 {
 #if !defined(WIN32)
-	/* Windows doesn't call JNI_OnLoad for libjava.dll, initialize the tracepoint elsewhere. */
+    /* Windows doesn't call JNI_OnLoad for libjava.dll, initialize the tracepoint elsewhere. */
     UT_JCL_JAVA_MODULE_LOADED(J9_UTINTERFACE_FROM_VM((J9JavaVM *)vm));
 #endif /* !defined(WIN32) */
 

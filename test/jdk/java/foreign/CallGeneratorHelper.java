@@ -174,7 +174,7 @@ public class CallGeneratorHelper extends NativeTestHelper {
                                 String structCode = sigCode(fields);
                                 int count = functions;
                                 int fCode = functions++ / CHUNK_SIZE;
-                                if (isAixOS && structCode.contains("D")) {
+                                if (isAixOS && structCode.startsWith("D")) {
                             	    continue;
                                 }
                                 String fName = String.format("f%d_%s_%s_%s", fCode, retCode, sigCode, structCode);

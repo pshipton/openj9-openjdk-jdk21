@@ -37,6 +37,8 @@
 
 #include "sun_nio_ch_EPoll.h"
 
+#include "ut_jcl_nio.h"
+
 JNIEXPORT jint JNICALL
 Java_sun_nio_ch_EPoll_eventSize(JNIEnv* env, jclass clazz)
 {
@@ -58,6 +60,7 @@ Java_sun_nio_ch_EPoll_dataOffset(JNIEnv* env, jclass clazz)
 JNIEXPORT jint JNICALL
 Java_sun_nio_ch_EPoll_create(JNIEnv *env, jclass clazz) {
     int epfd = epoll_create1(EPOLL_CLOEXEC);
+    Trc_sun_nio_ch_EPoll_create(epfd);
     if (epfd < 0) {
         JNU_ThrowIOExceptionWithLastError(env, "epoll_create1 failed");
     }
@@ -88,6 +91,7 @@ Java_sun_nio_ch_EPoll_wait(JNIEnv *env, jclass clazz, jint epfd,
         if (errno == EINTR) {
             return IOS_INTERRUPTED;
         } else {
+            Trc_sun_nio_ch_EPoll_wait(epfd, numfds, res, errno);
             JNU_ThrowIOExceptionWithLastError(env, "epoll_wait failed");
             return IOS_THROWN;
         }

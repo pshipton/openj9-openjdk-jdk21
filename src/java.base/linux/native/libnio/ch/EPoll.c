@@ -88,10 +88,24 @@ Java_sun_nio_ch_EPoll_wait(JNIEnv *env, jclass clazz, jint epfd,
     struct epoll_event *events = jlong_to_ptr(address);
     int res = epoll_wait(epfd, events, numfds, timeout);
     if (res < 0) {
-        if (errno == EINTR) {
+       if (errno == EINTR) {
             return IOS_INTERRUPTED;
         } else {
-            Trc_sun_nio_ch_EPoll_wait(epfd, numfds, res, errno);
+			int i = 0;
+			int localerrno = errno;
+            int numevents = (int)events->events;
+			epoll_data_t *data = (epoll_data_t *)((uintptr_t)events + sizeof(uint32_t));
+            Trc_sun_nio_ch_EPoll_wait(epfd, numfds, res, localerrno);
+            fprintf(stderr, "sun_nio_ch_EPoll_wait(fd=%d, numfds=%d, rc=%d, errno=%d, addr=%lx, events=%p, timeout=%d)\n", epfd, numfds, res, localerrno, address, events, timeout);
+            if (numevents > 5) numevents = 5;
+            for (i = 0; i < numevents; i++) {
+				fprintf(stderr, "fd %d ", data->fd);
+				data++;
+			}
+			fprintf(stderr, "\n");
+			int res2 = epoll_wait(epfd, events, numfds, timeout);
+            fprintf(stderr, "retry epoll_wait(fd=%d, numfds=%d, rc=%d, errno=%d)\n", epfd, numfds, res2, errno);
+			errno = localerrno;
             JNU_ThrowIOExceptionWithLastError(env, "epoll_wait failed");
             return IOS_THROWN;
         }

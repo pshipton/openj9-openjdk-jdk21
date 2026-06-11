@@ -27,6 +27,7 @@
  #include <unistd.h>
  #include <sys/types.h>
  #include <sys/epoll.h>
+ #include <time.h>
 
 #include "jni.h"
 #include "jni_util.h"
@@ -86,26 +87,57 @@ Java_sun_nio_ch_EPoll_wait(JNIEnv *env, jclass clazz, jint epfd,
                            jlong address, jint numfds, jint timeout)
 {
     struct epoll_event *events = jlong_to_ptr(address);
+    struct timespec starttime;
+    uint32_t orgevents = events->events;
+    clock_gettime(CLOCK_MONOTONIC, &starttime);
     int res = epoll_wait(epfd, events, numfds, timeout);
+//    struct timespec sleept;
+//    sleept.tv_sec = 0;
+//    sleept.tv_nsec = 1000000 * 75;
+//    nanosleep(&sleept, NULL);
+//    errno = EINVAL;
+//    timeout = 200;
     if (res < 0) {
        if (errno == EINTR) {
             return IOS_INTERRUPTED;
         } else {
-			int i = 0;
-			int localerrno = errno;
-            int numevents = (int)events->events;
-			epoll_data_t *data = (epoll_data_t *)((uintptr_t)events + sizeof(uint32_t));
-            Trc_sun_nio_ch_EPoll_wait(epfd, numfds, res, localerrno);
-            fprintf(stderr, "sun_nio_ch_EPoll_wait(fd=%d, numfds=%d, rc=%d, errno=%d, addr=%lx, events=%p, timeout=%d)\n", epfd, numfds, res, localerrno, address, events, timeout);
-            if (numevents > 5) numevents = 5;
-            for (i = 0; i < numevents; i++) {
-				fprintf(stderr, "fd %d ", data->fd);
-				data++;
-			}
-			fprintf(stderr, "\n");
-			int res2 = epoll_wait(epfd, events, numfds, timeout);
-            fprintf(stderr, "retry epoll_wait(fd=%d, numfds=%d, rc=%d, errno=%d)\n", epfd, numfds, res2, errno);
-			errno = localerrno;
+            if (errno = EINVAL) {
+				time_t elapsedsec = 0;
+				long elapsedmillis = 0;
+                jint timeoutmillis = -1;
+                if (-1 != timeout) {
+                    struct timespec endtime;
+                    clock_gettime(CLOCK_MONOTONIC, &endtime);
+                    elapsedsec = (endtime.tv_sec - starttime.tv_sec);
+                    elapsedmillis = (endtime.tv_nsec - starttime.tv_nsec) / 1000000;
+                    if (elapsedmillis < 0) {
+                        elapsedmillis += 1000;
+                        elapsedsec -= 1;
+                    }
+                    jint timeoutsec = (timeout / 1000) - elapsedsec;
+                    timeoutmillis = (timeout - (timeoutsec * 1000)) - elapsedmillis;
+                    if (timeoutsec > 0) {
+                        timeoutmillis += timeoutsec * 1000;
+                    }
+                    if (timeoutmillis < 0) {
+						timeoutmillis = 0;
+					}
+                }
+                fprintf(stderr, "sun_nio_ch_EPoll_wait(fd=%d, timeout=%d) EINVAL orgevents %u events %u remaining timeout %d elapsed sec %ld millis %ld\n",
+                    epfd, timeout, orgevents, events->events, timeoutmillis, elapsedsec, elapsedmillis);
+                res = epoll_wait(epfd, events, numfds, timeoutmillis);
+                fprintf(stderr, "sun_nio_ch_EPoll_wait(fd=%d, res %d, errno %d events %u)\n", epfd, res, errno, events->events);
+                if (res < 0) {
+                    if (errno == EINTR) {
+                        return IOS_INTERRUPTED;
+                    } else {
+                        JNU_ThrowIOExceptionWithLastError(env, "epoll_wait failed");
+                        return IOS_THROWN;
+                    }
+                } else {
+                    return res;
+                }
+            }
             JNU_ThrowIOExceptionWithLastError(env, "epoll_wait failed");
             return IOS_THROWN;
         }

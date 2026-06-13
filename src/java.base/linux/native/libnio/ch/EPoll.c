@@ -90,6 +90,7 @@ Java_sun_nio_ch_EPoll_wait(JNIEnv *env, jclass clazz, jint epfd,
     struct timespec starttime;
     uint32_t orgevents = events->events;
     clock_gettime(CLOCK_MONOTONIC, &starttime);
+    errno = 0;
     int res = epoll_wait(epfd, events, numfds, timeout);
 //    struct timespec sleept;
 //    sleept.tv_sec = 0;
